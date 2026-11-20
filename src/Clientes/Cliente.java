@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.time.Period;
 
 public class Cliente extends Pessoa {
-    public static final int PONTOS_POR_DIARIA = 10;
+    public static final double REAIS_POR_PONTO = 10.00; // 1 ponto a cada R$ 10,00 pagos no aluguel
 
     private LocalDate dataNascimento;
     private CNH cnh;
@@ -76,7 +76,7 @@ public class Cliente extends Pessoa {
         // SUV e elétrico: 21 anos ou mais e CNH há pelo menos 2 anos
         if (veiculo instanceof SUV || veiculo instanceof Eletrico){
             if (getIdade() < 21){
-                return "SUV e elétrico só para maiores de 21 anos.";
+                return "SUV e elétrico só para quem tem 21 anos ou mais.";
             }
             if (cnh.anosDeHabilitacao() < 2){
                 return "SUV e elétrico exigem CNH há pelo menos 2 anos.";
@@ -107,15 +107,16 @@ public class Cliente extends Pessoa {
         return valor * (1 - getDescontoFidelidade());
     }
 
-    // chamar quando o aluguel for finalizado: 10 pontos por diária
-    public void registrarAluguel(int diarias){
-        if (diarias <= 0){
-            System.out.println("ERRO: O número de diárias deve ser maior que zero!");
+    // chamar quando o aluguel for finalizado, com o valor pago no aluguel:
+    // 1 ponto a cada R$ 10,00 (multas e avarias não contam; os pontos não expiram)
+    public void registrarAluguel(double valorPago){
+        if (valorPago <= 0){
+            System.out.println("ERRO: O valor pago no aluguel deve ser maior que zero!");
             return;
         }
 
         NivelFidelidade antes = getNivel();
-        pontos += diarias * PONTOS_POR_DIARIA;
+        pontos += (int) (valorPago / REAIS_POR_PONTO);
         NivelFidelidade depois = getNivel();
 
         if (depois != antes){

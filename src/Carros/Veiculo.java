@@ -1,5 +1,6 @@
 package Carros;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public abstract class Veiculo {
@@ -133,5 +134,22 @@ public abstract class Veiculo {
         }
     }
 
-    public abstract double calcularDiaria();
+    // valor de UMA diária (R$ 120 Passeio, 200 SUV, 180 Utilitário, 250 Elétrico)
+    public double calcularDiaria(){
+        return getValorDiaria();
+    }
+
+    // cada tipo de carro calcula o valor das diárias do seu jeito (polimorfismo)
+    // cada dia conta 24 horas a partir do horário da retirada
+    public abstract double calcularValorDiarias(LocalDateTime retirada, int dias);
+
+    // taxa fixa cobrada uma vez por aluguel (só o Utilitário cobra)
+    public double getTaxaFixa(){
+        return 0;
+    }
+
+    // limite de km por dia de aluguel (100 km; o Utilitário tem 150 km)
+    public int getLimiteKmPorDia(){
+        return 100;
+    }
 }

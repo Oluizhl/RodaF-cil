@@ -9,8 +9,23 @@ public class Locadora {
         frota = new ArrayList<Veiculo>();
     }
 
-    public void cadastrar(Veiculo veiculo){
+    // devolve true se cadastrou; carro com placa fora do padrão Mercosul (ex.: ABC1D23) não é aceito
+    public boolean cadastrar(Veiculo veiculo){
+        if (veiculo == null){
+            System.out.println("ERRO: Veículo inválido!");
+            return false;
+        }
+        if (veiculo.getPlaca() == null){
+            System.out.println("ERRO: Não é possível cadastrar carro com placa fora do padrão Mercosul!");
+            return false;
+        }
+        if (buscarPorPlaca(veiculo.getPlaca()) != null){
+            System.out.println("ERRO: Já existe um carro com essa placa!");
+            return false;
+        }
+
         frota.add(veiculo);
+        return true;
     }
 
     public void listar(){
@@ -106,6 +121,19 @@ public class Locadora {
 
         for (Veiculo v : frota){
             if (v.calcularDiaria() <= precoMaximo){
+                resultado.add(v);
+            }
+        }
+
+        return resultado;
+    }
+
+    // faixa de preço da diária: de precoMinimo até precoMaximo (os dois valores entram)
+    public ArrayList<Veiculo> buscarPorFaixaDePreco(double precoMinimo, double precoMaximo){
+        ArrayList<Veiculo> resultado = new ArrayList<Veiculo>();
+
+        for (Veiculo v : frota){
+            if (v.calcularDiaria() >= precoMinimo && v.calcularDiaria() <= precoMaximo){
                 resultado.add(v);
             }
         }

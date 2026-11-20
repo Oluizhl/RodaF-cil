@@ -108,19 +108,20 @@ public class TesteSemana4 {
         conferir("começa no Bronze", true, fiel.getNivel() == NivelFidelidade.BRONZE);
         conferir("Bronze não dá desconto", true, fiel.aplicarDesconto(1000) == 1000);
 
-        fiel.registrarAluguel(9);   // 90 pontos
-        conferir("90 pontos continua no Bronze", true, fiel.getNivel() == NivelFidelidade.BRONZE);
-        fiel.registrarAluguel(1);   // 100 pontos
-        conferir("100 pontos sobe para Prata", true, fiel.getNivel() == NivelFidelidade.PRATA);
+        fiel.registrarAluguel(4999.99);   // 499 pontos (1 ponto a cada R$ 10,00)
+        conferir("R$ 4.999,99 pagos = 499 pontos", true, fiel.getPontos() == 499);
+        conferir("499 pontos continua no Bronze", true, fiel.getNivel() == NivelFidelidade.BRONZE);
+        fiel.registrarAluguel(10);        // 500 pontos
+        conferir("500 pontos sobe para Prata", true, fiel.getNivel() == NivelFidelidade.PRATA);
         conferir("Prata dá 5% de desconto", true, Math.abs(fiel.aplicarDesconto(1000) - 950) < 0.001);
-        fiel.registrarAluguel(20);  // 300 pontos
-        conferir("300 pontos sobe para Ouro", true, fiel.getNivel() == NivelFidelidade.OURO);
+        fiel.registrarAluguel(10000);     // 1.500 pontos
+        conferir("1.500 pontos sobe para Ouro", true, fiel.getNivel() == NivelFidelidade.OURO);
         conferir("Ouro dá 10% de desconto", true, Math.abs(fiel.aplicarDesconto(1000) - 900) < 0.001);
-        fiel.registrarAluguel(30);  // 600 pontos
-        conferir("600 pontos sobe para Diamante", true, fiel.getNivel() == NivelFidelidade.DIAMANTE);
+        fiel.registrarAluguel(15000);     // 3.000 pontos
+        conferir("3.000 pontos sobe para Diamante", true, fiel.getNivel() == NivelFidelidade.DIAMANTE);
         conferir("Diamante dá 15% de desconto", true, Math.abs(fiel.aplicarDesconto(1000) - 850) < 0.001);
         fiel.registrarAluguel(0);
-        conferir("0 diárias não muda os pontos", true, fiel.getPontos() == 600);
+        conferir("R$ 0 pagos não muda os pontos", true, fiel.getPontos() == 3000);
 
         // ============ Bloqueio ============
         System.out.println("\n=== Teste de bloqueio ===");
@@ -144,9 +145,20 @@ public class TesteSemana4 {
         // ============ CRUD ============
         System.out.println("\n=== Teste do cadastro (editar / remover / listar) ===");
         cadastro.cadastrar(experiente);
-        cadastro.editar("529.982.247-25", "Carlos Lima Filho", "86911112222", "novo@email.com");
+        cadastro.editar("529.982.247-25", "Carlos Lima Filho", "52998224725", "86911112222", "novo@email.com");
         conferir("editar alterou o nome", true, cadastro.buscarPorCpf("52998224725").getNome().equals("Carlos Lima Filho"));
-        cadastro.editar("00000000000", "Ninguem", "86911112222", "x@email.com");
+
+        cadastro.editar("52998224725", "Nome Que Nao Deve Salvar", "11111111111", "86900000000", "outro@email.com");
+        conferir("editar com CPF inválido não salva nada (nome)", true,
+                cadastro.buscarPorCpf("52998224725").getNome().equals("Carlos Lima Filho"));
+        conferir("editar com CPF inválido não salva nada (telefone)", true,
+                cadastro.buscarPorCpf("52998224725").getTelefone().equals("86911112222"));
+
+        cadastro.editar("52998224725", "Carlos Troca CPF", "123.456.789-09", "86911112222", "novo@email.com");
+        conferir("editar com CPF válido troca o CPF", true, cadastro.buscarPorCpf("12345678909") != null);
+        cadastro.editar("12345678909", "Carlos Lima Filho", "52998224725", "86911112222", "novo@email.com");
+
+        cadastro.editar("00000000000", "Ninguem", "52998224725", "86911112222", "x@email.com");
         cadastro.listar();
         cadastro.remover("52998224725");
         conferir("remover tirou o cliente", true, cadastro.buscarPorCpf("52998224725") == null);
@@ -155,7 +167,26 @@ public class TesteSemana4 {
         // ============ Funcionário ============
         System.out.println("\n=== Funcionário (herança de Pessoa) ===");
         Funcionario f = new Funcionario("Rita Atendente", "12345678909", "86999990000", "rita@roda.com", "F001", "Atendente");
-        System.out.println(f.getNome() + " | " + f.getCargo() + " | CPF " + f.getCpfFormatado());
+        System.out.println(f.getNome() + " | " + f.getCargo() + " | CPF " + f.getCpfFormatado() + " | matrícula " + f.getMatricula());
+
+        CadastroFuncionarios equipe = new CadastroFuncionarios();
+        conferir("Cadastro aceita funcionário válido", true, equipe.cadastrar(f));
+        conferir("Cadastro recusa CPF repetido", false, equipe.cadastrar(
+                new Funcionario("Rita Clone", "123.456.789-09", "86999990000", "clone@roda.com", "F002", "Atendente")));
+        conferir("Cadastro recusa matrícula repetida", false, equipe.cadastrar(
+                new Funcionario("Paulo", "52998224725", "86999990000", "paulo@roda.com", "F001", "Atendente")));
+        conferir("Cadastro recusa CPF inválido", false, equipe.cadastrar(
+                new Funcionario("Ana", "11111111111", "86999990000", "ana@roda.com", "F003", "Atendente")));
+
+        equipe.editar("12345678909", "Rita Silva", "00000000000", "86911112222", "rita2@roda.com", "Gerente");
+        conferir("editar funcionário com CPF inválido não salva nada", true,
+                equipe.buscarPorCpf("12345678909").getNome().equals("Rita Atendente"));
+        equipe.editar("12345678909", "Rita Silva", "12345678909", "86911112222", "rita2@roda.com", "Gerente");
+        conferir("editar funcionário com CPF válido salva", true,
+                equipe.buscarPorCpf("12345678909").getCargo().equals("Gerente"));
+        equipe.listar();
+        equipe.remover("12345678909");
+        conferir("remover tirou o funcionário", true, equipe.buscarPorCpf("12345678909") == null);
 
         System.out.println("\n=== RESULTADO: " + acertos + "/" + total + " testes passaram ===");
     }

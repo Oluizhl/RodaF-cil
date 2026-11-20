@@ -6,10 +6,10 @@ public class Main {
     public static void main(String[] args){
         Locadora locadora = new Locadora();
 
-        Passeio passeio1 = new Passeio("RTK1G75", "Hyundai", "HB20s Evolution", 2022, 67000, 100);
-        SUV suv1 = new SUV("RSK1J13", "Volkswagen", "Nivus Highline", 2022, 35000, 120);
-        Utilitario utilitario1 = new Utilitario("UKF2G68", "RAM", "Rampage Rebel", 2026, 21000, 150, 1000);
-        Eletrico eletrico1 = new Eletrico("SLS9H69", "Peugeot", "2008e GT", 2022, 45000, 120, 220);
+        Passeio passeio1 = new Passeio("RTK1G75", "Hyundai", "HB20s Evolution", 2022, 67000, 120);
+        SUV suv1 = new SUV("RSK1J13", "Volkswagen", "Nivus Highline", 2022, 35000, 200);
+        Utilitario utilitario1 = new Utilitario("UKF2G68", "RAM", "Rampage Rebel", 2026, 21000, 180, 1000);
+        Eletrico eletrico1 = new Eletrico("SLS9H69", "Peugeot", "2008e GT", 2022, 45000, 250, 220);
 
         locadora.cadastrar(passeio1);
         locadora.cadastrar(suv1);
@@ -119,7 +119,7 @@ public class Main {
         locadora.mostrarHistorico("AAA1A11");   // 3. placa inexistente
         locadora.mostrarHistorico("SLS9H69");   // 4. outro carro, deve estar vazio
 
-        Passeio t = new Passeio("ABC1D23", "Fiat", "Argo", 2022, 5000, 100);
+        Passeio t = new Passeio("ABC1D23", "Fiat", "Argo", 2022, 5000, 120);
         locadora.cadastrar(t);
 
         t.setKm(15000);

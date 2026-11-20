@@ -72,17 +72,35 @@ public class CadastroClientes {
         }
     }
 
+    // mantém o CPF e muda os outros dados
     public void editar(String cpf, String novoNome, String novoTelefone, String novoEmail){
+        editar(cpf, novoNome, cpf, novoTelefone, novoEmail);
+    }
+
+    // o CPF novo é validado antes de salvar: se for inválido, NENHUM dado é alterado
+    public void editar(String cpf, String novoNome, String novoCpf, String novoTelefone, String novoEmail){
         Cliente cliente = buscarPorCpf(cpf);
 
-        if (cliente != null){
-            cliente.setNome(novoNome);
-            cliente.setTelefone(novoTelefone);
-            cliente.setEmail(novoEmail);
-            System.out.println("Dados alterados com sucesso!");
-        } else {
+        if (cliente == null){
             System.out.println("ERRO: Cliente com esse CPF não encontrado!");
+            return;
         }
+        if (!Pessoa.cpfValido(novoCpf)){
+            System.out.println("ERRO: CPF inválido! Os dados não foram salvos.");
+            return;
+        }
+
+        Cliente outro = buscarPorCpf(novoCpf);
+        if (outro != null && outro != cliente){
+            System.out.println("ERRO: Já existe um cliente com esse CPF! Os dados não foram salvos.");
+            return;
+        }
+
+        cliente.setNome(novoNome);
+        cliente.setCpf(novoCpf);
+        cliente.setTelefone(novoTelefone);
+        cliente.setEmail(novoEmail);
+        System.out.println("Dados alterados com sucesso!");
     }
 
     // renovação de CNH: só aceita se a nova não estiver vencida

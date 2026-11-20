@@ -2,9 +2,9 @@ package Clientes;
 
 public enum NivelFidelidade {
     BRONZE("Bronze", 0, 0.00),
-    PRATA("Prata", 100, 0.05),
-    OURO("Ouro", 300, 0.10),
-    DIAMANTE("Diamante", 600, 0.15);
+    PRATA("Prata", 500, 0.05),
+    OURO("Ouro", 1500, 0.10),
+    DIAMANTE("Diamante", 3000, 0.15);
 
     private final String nome;
     private final int pontosMinimos;
