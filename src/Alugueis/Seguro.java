@@ -12,7 +12,10 @@ public abstract class Seguro {
     }
 
     // cada tipo de seguro calcula o valor do seu jeito (polimorfismo)
-    public abstract double calcularValor(double diaria, int dias);
+    public abstract double calcularValor(int dias);
+
+    // quanto o CLIENTE paga por uma avaria, dependendo do que o seguro cobre
+    public abstract double calcularAvaria(Avaria avaria);
 
     public abstract String getCobertura();
 }

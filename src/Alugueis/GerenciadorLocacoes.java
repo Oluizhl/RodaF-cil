@@ -2,8 +2,10 @@ package Alugueis;
 
 import Carros.Veiculo;
 import Clientes.Cliente;
+import Clientes.Funcionario;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class GerenciadorLocacoes {
@@ -15,21 +17,28 @@ public class GerenciadorLocacoes {
         proximoId = 1;
     }
 
-    // reservar(sem adicionais) e reservar(com adicionais) têm o mesmo nome: sobrecarga
-    public Locacao reservar(Cliente cliente, Veiculo veiculo, LocalDate retirada, LocalDate devolucao,
+    // reservar tem 3 versões com o mesmo nome (sobrecarga): sem adicionais, com adicionais e com condutor extra
+    public Locacao reservar(Cliente cliente, Veiculo veiculo, LocalDateTime retirada, LocalDateTime devolucao,
                             Seguro seguro, FormaPagamento pagamento) throws LocadoraException {
-        return reservar(cliente, veiculo, retirada, devolucao, seguro, pagamento, new ArrayList<Adicional>());
+        return reservar(cliente, veiculo, retirada, devolucao, seguro, pagamento, new ArrayList<Adicional>(), null);
     }
 
-    public Locacao reservar(Cliente cliente, Veiculo veiculo, LocalDate retirada, LocalDate devolucao,
+    public Locacao reservar(Cliente cliente, Veiculo veiculo, LocalDateTime retirada, LocalDateTime devolucao,
                             Seguro seguro, FormaPagamento pagamento, ArrayList<Adicional> adicionais)
             throws LocadoraException {
-        if (retirada != null && retirada.isBefore(LocalDate.now())){
+        return reservar(cliente, veiculo, retirada, devolucao, seguro, pagamento, adicionais, null);
+    }
+
+    // condutorExtra: precisa de CNH válida e passa pelas mesmas regras de idade do cliente
+    public Locacao reservar(Cliente cliente, Veiculo veiculo, LocalDateTime retirada, LocalDateTime devolucao,
+                            Seguro seguro, FormaPagamento pagamento, ArrayList<Adicional> adicionais, Cliente condutorExtra)
+            throws LocadoraException {
+        if (retirada != null && retirada.toLocalDate().isBefore(LocalDate.now())){
             throw new DatasInvalidasException("A retirada não pode ser no passado!");
         }
 
-        // o construtor da Locacao confere datas, cliente e carro
-        Locacao nova = new Locacao(proximoId, cliente, veiculo, retirada, devolucao, seguro, pagamento, adicionais);
+        // o construtor da Locacao confere datas, cliente, condutor extra e carro
+        Locacao nova = new Locacao(proximoId, cliente, veiculo, retirada, devolucao, seguro, pagamento, adicionais, condutorExtra);
 
         Locacao conflito = buscarConflito(veiculo, retirada, devolucao);
         if (conflito != null){
@@ -41,7 +50,7 @@ public class GerenciadorLocacoes {
         return nova;
     }
 
-    private Locacao buscarConflito(Veiculo veiculo, LocalDate retirada, LocalDate devolucao){
+    private Locacao buscarConflito(Veiculo veiculo, LocalDateTime retirada, LocalDateTime devolucao){
         for (Locacao l : locacoes){
             if (l.isEmAndamento() && l.isDoVeiculo(veiculo) && l.cruzaCom(retirada, devolucao)){
                 return l;
@@ -51,7 +60,7 @@ public class GerenciadorLocacoes {
     }
 
     // para a tela de busca da Parte 5
-    public boolean estaDisponivel(Veiculo veiculo, LocalDate retirada, LocalDate devolucao){
+    public boolean estaDisponivel(Veiculo veiculo, LocalDateTime retirada, LocalDateTime devolucao){
         if (!devolucao.isAfter(retirada)){
             return false;
         }
@@ -61,20 +70,36 @@ public class GerenciadorLocacoes {
         return buscarConflito(veiculo, retirada, devolucao) == null;
     }
 
-    public Locacao retirar(int id) throws LocadoraException {
+    // toda retirada registra o funcionário que fez a vistoria
+    public Locacao retirar(int id, Funcionario funcionario) throws LocadoraException {
         Locacao l = buscarPorId(id);
-        l.retirar();
+        l.retirar(funcionario);
         return l;
     }
 
-    // devolver(4 parâmetros) paga os extras na hora; o de 5 deixa escolher
-    public Fechamento devolver(int id, LocalDate dataReal, int kmFinal, double litrosFaltando) throws LocadoraException {
-        return devolver(id, dataReal, kmFinal, litrosFaltando, true);
+    // elétrico: informar a carga da bateria na saída (mínimo 80%)
+    public Locacao retirar(int id, Funcionario funcionario, int cargaBateria) throws LocadoraException {
+        Locacao l = buscarPorId(id);
+        l.retirar(funcionario, cargaBateria);
+        return l;
     }
 
-    public Fechamento devolver(int id, LocalDate dataReal, int kmFinal, double litrosFaltando, boolean pagarExtrasAgora)
+    // toda devolução registra o funcionário que fez a vistoria (km, combustível ou bateria e avarias)
+    // devolver tem versões com o mesmo nome (sobrecarga): a mais simples paga os extras na hora
+    public Fechamento devolver(int id, Funcionario funcionario, LocalDateTime dataReal, int kmFinal, double litrosFaltando)
             throws LocadoraException {
-        return buscarPorId(id).devolver(dataReal, kmFinal, litrosFaltando, pagarExtrasAgora);
+        return devolver(id, funcionario, dataReal, kmFinal, litrosFaltando, -1, new ArrayList<Avaria>(), true);
+    }
+
+    public Fechamento devolver(int id, Funcionario funcionario, LocalDateTime dataReal, int kmFinal, double litrosFaltando,
+                               ArrayList<Avaria> avarias, boolean pagarExtrasAgora) throws LocadoraException {
+        return devolver(id, funcionario, dataReal, kmFinal, litrosFaltando, -1, avarias, pagarExtrasAgora);
+    }
+
+    public Fechamento devolver(int id, Funcionario funcionario, LocalDateTime dataReal, int kmFinal, double litrosFaltando,
+                               int cargaBateria, ArrayList<Avaria> avarias, boolean pagarExtrasAgora)
+            throws LocadoraException {
+        return buscarPorId(id).devolver(funcionario, dataReal, kmFinal, litrosFaltando, cargaBateria, avarias, pagarExtrasAgora);
     }
 
     public void cancelar(int id) throws LocadoraException {

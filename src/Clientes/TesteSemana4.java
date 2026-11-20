@@ -7,7 +7,7 @@ import Carros.Utilitario;
 
 import java.time.LocalDate;
 
-public class Teste {
+public class TesteSemana4 {
     private static int acertos = 0;
     private static int total = 0;
 
