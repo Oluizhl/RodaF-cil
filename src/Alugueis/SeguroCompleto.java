@@ -1,25 +1,18 @@
 package Alugueis;
 
 public class SeguroCompleto extends Seguro {
-    public static final double VALOR_POR_DIA = 70.00;
-
     public SeguroCompleto(){
         super("Seguro completo");
     }
 
+    // 25% da diária por dia + R$ 50 de taxa fixa
     @Override
-    public double calcularValor(int dias){
-        return VALOR_POR_DIA * dias;
-    }
-
-    // cobre tudo, sem franquia
-    @Override
-    public double calcularAvaria(Avaria avaria){
-        return 0;
+    public double calcularValor(double diaria, int dias){
+        return diaria * 0.25 * dias + 50;
     }
 
     @Override
     public String getCobertura(){
-        return "Lataria, mecânica, vidros, pneus e interior, sem franquia.";
+        return "Colisão, roubo, terceiros e vidros, com franquia baixa.";
     }
 }

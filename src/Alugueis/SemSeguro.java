@@ -6,18 +6,12 @@ public class SemSeguro extends Seguro {
     }
 
     @Override
-    public double calcularValor(int dias){
+    public double calcularValor(double diaria, int dias){
         return 0;
-    }
-
-    // o cliente paga 100% de qualquer avaria
-    @Override
-    public double calcularAvaria(Avaria avaria){
-        return avaria.getValorConserto();
     }
 
     @Override
     public String getCobertura(){
-        return "Nenhuma, o cliente paga 100% de qualquer avaria.";
+        return "Nenhuma, o cliente paga qualquer dano.";
     }
 }
