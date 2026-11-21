@@ -152,4 +152,9 @@ public class Locadora {
 
         return resultado;
     }
+
+    // para as Partes 4 e 5 usarem (telas, painel gerencial)
+    public ArrayList<Veiculo> getFrota(){
+        return new ArrayList<Veiculo>(frota);
+    }
 }
