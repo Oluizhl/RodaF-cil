@@ -66,6 +66,8 @@ Ao iniciar, aparece o menu principal:
 4 - Aluguéis
 5 - Painel gerencial
 6 - Carregar dados de exemplo
+7 - Fazer backup no Google Drive
+8 - Exportar dados para CSV
 0 - Sair
 ```
 
@@ -73,21 +75,26 @@ Na primeira execução, use a opção **6** para carregar carros, clientes e fun
 
 Fluxo típico de um aluguel: cadastrar cliente e carro, reservar, retirar (com o funcionário que fez a vistoria), devolver e ver o fechamento com multas e extras.
 
+## Como os dados são salvos
+
+Não é preciso salvar manualmente. O sistema grava em `dados/locadora.json` depois de cada tela usada e ao sair pela opção **0 - Sair**.
+
 ## Onde ficam os arquivos
 
 Os arquivos são criados na pasta **de onde o programa foi executado**:
 
 | Caminho | Conteúdo |
 |---|---|
-| `dados/locadora.json` | Banco com carros, clientes, funcionários e aluguéis (salvo após cada tela e ao sair) |
+| `dados/locadora.json` | Banco com carros, clientes, funcionários e aluguéis |
 | `dados/historico.txt` | Histórico de ações (data, funcionário, ação e detalhes) |
 | `dados/pdf/` | Contratos e recibos em PDF gerados pela tela de aluguéis |
+| `dados/csv/` | Planilhas `carros.csv`, `clientes.csv`, `funcionarios.csv` e `alugueis.csv` (menu, opção 8) |
 
 Se `dados/locadora.json` não existir, um banco vazio é criado. Se o arquivo estiver corrompido, o original é preservado como `locadora.corrompido-<data>.json` e um banco novo é iniciado.
 
 ## Backup no Google Drive (opcional)
 
-A classe `BackupDrive` copia a pasta `dados` para uma pasta sincronizada pelo **Google Drive para computador**. Para configurar, defina a variável de ambiente com o caminho dessa pasta:
+O sistema copia a pasta `dados` para uma pasta sincronizada pelo **Google Drive para computador**. Para configurar, defina a variável de ambiente com o caminho dessa pasta **antes de abrir o sistema**:
 
 ```bash
 # Linux / macOS
@@ -97,7 +104,9 @@ export RODAFACIL_DRIVE_DIR="/caminho/para/Google Drive/RodaFacil"
 $env:RODAFACIL_DRIVE_DIR = "G:\Meu Drive\RodaFacil"
 ```
 
-Sem a variável, o sistema funciona normalmente, sem backup. Não é usada a API do Google, então não há chaves nem credenciais (não é necessário `.env`).
+Com a variável definida, o backup roda automaticamente a cada gravação. A opção **7** do menu força um backup na hora e informa o resultado. Sem a variável, o sistema funciona normalmente, sem backup.
+
+Não é usada a API do Google, então não há chaves nem credenciais (não é necessário `.env`).
 
 ## Testes
 
